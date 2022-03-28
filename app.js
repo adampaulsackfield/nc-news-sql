@@ -3,10 +3,12 @@ const express = require('express');
 const app = express();
 
 const { getUsers } = require('./controllers/user.controller');
+const { getTopics } = require('./controllers/topic.controller');
 
 app.use(express.json());
 
 app.get('/api/users', getUsers);
+app.get('/api/topics', getTopics);
 
 app.all('*', (req, res) => {
 	res.status(404).send({ message: 'Path not found' });
