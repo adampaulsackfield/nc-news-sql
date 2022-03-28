@@ -1,0 +1,40 @@
+const request = require('supertest');
+const app = require('../app');
+const seed = require('../db/seeds/seed');
+const data = require('../db/data/test-data/index');
+const db = require('../db/connection');
+
+afterAll(() => {
+	return db.end();
+});
+
+beforeEach(() => seed(data));
+
+describe('USERS', () => {
+	describe('GET /api/users', () => {
+		const ENDPOINT = '/api/users';
+
+		it('should return an array of users', () => {
+			return request(app)
+				.get(ENDPOINT)
+				.expect(200)
+				.then((res) => {
+					expect(res.body.users).toBeInstanceOf(Array);
+					expect(res.body.users[0]).toMatchObject({
+						avatar_url: expect.any(String),
+						name: expect.any(String),
+						username: expect.any(String),
+					});
+				});
+		});
+
+		it('should return a 404 response for incorrect routes', () => {
+			return request(app)
+				.get(`${ENDPOINT}/nothing-here`)
+				.expect(404)
+				.then((res) => {
+					expect(res.body.message).toBe('Path not found');
+				});
+		});
+	});
+});

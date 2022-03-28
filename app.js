@@ -2,10 +2,12 @@ const express = require('express');
 
 const app = express();
 
+const { getUsers } = require('./controllers/user.controller');
 const { updateArticleById } = require('./controllers/article.controller');
 
 app.use(express.json());
 
+app.get('/api/users', getUsers);
 app.patch('/api/articles/:article_id', updateArticleById);
 
 app.all('*', (req, res) => {
