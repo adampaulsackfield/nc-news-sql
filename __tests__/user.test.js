@@ -27,14 +27,5 @@ describe('USERS', () => {
 					});
 				});
 		});
-
-		it('should return a 404 response for incorrect routes', () => {
-			return request(app)
-				.get(`${ENDPOINT}/nothing-here`)
-				.expect(404)
-				.then((res) => {
-					expect(res.body.message).toBe('Path not found');
-				});
-		});
 	});
 });
