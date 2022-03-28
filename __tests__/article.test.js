@@ -41,7 +41,7 @@ describe('ARTICLES', () => {
 		});
 	});
 
-	describe.only('PATCH /api/articles/:article_id', () => {
+	describe('PATCH /api/articles/:article_id', () => {
 		const ENDPOINT = '/api/articles/';
 
 		it('should return a 404 not found if the article_id does not exist', () => {
