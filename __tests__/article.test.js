@@ -69,25 +69,35 @@ describe('ARTICLES', () => {
 					expect(res.body.message).toBe('inc_votes is required');
 				});
 		});
-	});
 
-	it('should return a 201 and the updated article if exists and valid data is passed', () => {
-		return request(app)
-			.patch(`/api/articles/3`)
-			.send({ inc_votes: 3 })
-			.expect(201)
-			.then((res) => {
-				expect(res.body.article).toBeInstanceOf(Object);
-				expect(res.body.article).toMatchObject({
-					article_id: expect.any(Number),
-					title: expect.any(String),
-					topic: expect.any(String),
-					author: expect.any(String),
-					body: expect.any(String),
-					created_at: expect.any(String),
-					votes: expect.any(Number),
+		it('should return a 400 bad request if not given inc_votes as the correct data type', () => {
+			return request(app)
+				.patch(`/api/articles/4`)
+				.send({ inc_votes: true })
+				.expect(400)
+				.then((res) => {
+					expect(res.body.message).toBe('inc_votes must be an integar');
 				});
-				expect(res.body.article.votes).toBe(3);
-			});
+		});
+
+		it('should return a 201 and the updated article if exists and valid data is passed', () => {
+			return request(app)
+				.patch(`/api/articles/3`)
+				.send({ inc_votes: 3 })
+				.expect(201)
+				.then((res) => {
+					expect(res.body.article).toBeInstanceOf(Object);
+					expect(res.body.article).toMatchObject({
+						article_id: expect.any(Number),
+						title: expect.any(String),
+						topic: expect.any(String),
+						author: expect.any(String),
+						body: expect.any(String),
+						created_at: expect.any(String),
+						votes: expect.any(Number),
+					});
+					expect(res.body.article.votes).toBe(3);
+				});
+		});
 	});
 });
