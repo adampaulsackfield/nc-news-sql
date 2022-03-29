@@ -12,8 +12,6 @@ beforeEach(() => seed(data));
 
 describe('ARTICLES', () => {
 	describe('GET /api/articles/:article_id', () => {
-		const ENDPOINT = '/api/articles/';
-
 		it('should return a 404 not found if the article_id does not exist', () => {
 			return request(app)
 				.get(`/api/articles/112358`)
@@ -22,9 +20,10 @@ describe('ARTICLES', () => {
 					expect(res.body.message).toBe('Article not found');
 				});
 		});
+
 		it('should return a given article that matches the ID of the params', () => {
 			return request(app)
-				.get(`/api/articles/2`)
+				.get(`/api/articles/3`)
 				.expect(200)
 				.then((res) => {
 					expect(res.body.article).toBeInstanceOf(Object);
@@ -39,11 +38,18 @@ describe('ARTICLES', () => {
 					});
 				});
 		});
+
+		it('should return comment_count when returning an article', () => {
+			return request(app)
+				.get('/api/articles/3')
+				.expect(200)
+				.then((res) => {
+					expect(res.body.article).toBeInstanceOf(Object);
+				});
+		});
 	});
 
 	describe('PATCH /api/articles/:article_id', () => {
-		const ENDPOINT = '/api/articles/';
-
 		it('should return a 404 not found if the article_id does not exist', () => {
 			return request(app)
 				.patch(`/api/articles/112358`)
