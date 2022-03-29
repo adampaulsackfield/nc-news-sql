@@ -3,12 +3,16 @@ const express = require('express');
 const app = express();
 
 const { getUsers } = require('./controllers/user.controller');
-const { updateArticleById } = require('./controllers/article.controller');
+const {
+	updateArticleById,
+	getArticleById,
+} = require('./controllers/article.controller');
 const { getTopics } = require('./controllers/topic.controller');
 
 app.use(express.json());
 
 app.get('/api/users', getUsers);
+app.get('/api/articles/:article_id', getArticleById);
 app.patch('/api/articles/:article_id', updateArticleById);
 app.get('/api/topics', getTopics);
 
