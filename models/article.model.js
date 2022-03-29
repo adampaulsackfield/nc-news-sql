@@ -2,10 +2,10 @@ const db = require('../db/connection');
 
 exports.selectArticleById = (article_id) => {
 	let articles = db.query(
-		`SELECT * FROM articles WHERE articles.article_id = ${article_id} `
+		`SELECT * FROM articles WHERE articles.article_id = ${article_id} ;`
 	);
 	let comments = db.query(
-		`SELECT * FROM comments WHERE comments.article_id = ${article_id}`
+		`SELECT * FROM comments WHERE comments.article_id = ${article_id};`
 	);
 	const promises = [articles, comments];
 
