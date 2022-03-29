@@ -1,5 +1,17 @@
 const db = require('../db/connection');
 
+exports.selectArticles = async () => {
+	let articlesResult = await db.query(`SELECT * FROM articles;`);
+	const promises = [];
+	articlesResult.rows.forEach((article) => {
+		promises.push(this.selectArticleById(article.article_id));
+	});
+
+	return Promise.all(promises).then((articles) => {
+		return articles;
+	});
+};
+
 exports.selectArticleById = (article_id) => {
 	let articles = db.query(
 		`SELECT * FROM articles WHERE articles.article_id = ${article_id} ;`
