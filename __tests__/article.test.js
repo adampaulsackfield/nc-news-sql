@@ -3,6 +3,7 @@ const app = require('../app');
 const seed = require('../db/seeds/seed');
 const data = require('../db/data/test-data/index');
 const db = require('../db/connection');
+require('jest-sorted');
 
 afterAll(() => {
 	return db.end();
@@ -110,6 +111,9 @@ describe('ARTICLES', () => {
 						comment_count: expect.any(Number),
 					});
 					expect(res.body.articles.length).toBe(12);
+					expect(res.body.articles).toBeSortedBy('created_at', {
+						descending: true,
+					});
 				});
 		});
 	});
