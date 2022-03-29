@@ -45,6 +45,7 @@ describe('ARTICLES', () => {
 				.expect(200)
 				.then((res) => {
 					expect(res.body.article).toBeInstanceOf(Object);
+					expect(res.body.article.comment_count).toBe(2);
 				});
 		});
 	});

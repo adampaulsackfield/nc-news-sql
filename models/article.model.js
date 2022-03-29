@@ -26,7 +26,7 @@ exports.selectArticleById = (article_id) => {
 exports.patchArticleById = (article_id, inc_votes) => {
 	return db
 		.query(
-			`UPDATE articles SET votes = votes + ${inc_votes} WHERE article_id = ${article_id} RETURNING *`
+			`UPDATE articles SET votes = votes + ${inc_votes} WHERE article_id = ${article_id} RETURNING *;`
 		)
 		.then((result) => {
 			if (!result.rows.length) {
