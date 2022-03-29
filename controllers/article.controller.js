@@ -27,6 +27,10 @@ exports.updateArticleById = (req, res, next) => {
 	if (inc_votes === undefined) {
 		return next({ status: 400, msg: 'inc_votes is required' });
 	}
+	if (typeof inc_votes !== 'number') {
+		return next({ status: 400, msg: 'inc_votes must be an integar' });
+	}
+
 	patchArticleById(article_id, inc_votes)
 		.then((article) => {
 			res.status(201).send({ article });
