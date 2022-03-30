@@ -1,5 +1,13 @@
 const db = require('../db/connection');
 
+exports.selectArticles = async () => {
+	let articlesResult = await db.query(
+		`SELECT articles.author, articles.title, articles.article_id, articles.topic, articles.votes, articles.created_at, COUNT(articles.article_id)::INT AS comment_count FROM articles FULL JOIN comments ON articles.article_id = comments.article_id GROUP BY articles.article_id ORDER BY articles.created_at DESC;`
+	);
+
+	return articlesResult.rows;
+};
+
 exports.selectArticleById = (article_id) => {
 	let articles = db.query(
 		`SELECT * FROM articles WHERE articles.article_id = ${article_id} ;`
