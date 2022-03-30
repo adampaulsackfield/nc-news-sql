@@ -42,6 +42,10 @@ exports.updateArticleById = (req, res, next) => {
 exports.getCommentsByArticleId = (req, res, next) => {
 	const { article_id } = req.params;
 
+	if (typeof article_id !== 'string') {
+		return next({ status: 400, msg: 'Article ID must be a string' });
+	}
+
 	selectCommentsByArticleId(article_id)
 		.then((comments) => {
 			res.status(200).send({ comments });
