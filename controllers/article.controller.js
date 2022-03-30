@@ -42,11 +42,16 @@ exports.updateArticleById = (req, res, next) => {
 exports.getCommentsByArticleId = (req, res, next) => {
 	const { article_id } = req.params;
 
-	if (typeof article_id !== 'string') {
-		return next({ status: 400, msg: 'Article ID must be a string' });
+	const parsedArticleId = parseInt(article_id);
+
+	if (isNaN(parsedArticleId)) {
+		return next({
+			status: 400,
+			msg: 'article_id must be an integar',
+		});
 	}
 
-	selectCommentsByArticleId(article_id)
+	selectCommentsByArticleId(parsedArticleId)
 		.then((comments) => {
 			res.status(200).send({ comments });
 		})

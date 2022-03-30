@@ -173,5 +173,14 @@ describe('ARTICLES', () => {
 					expect(res.body.message).toBe('Comments not found');
 				});
 		});
+
+		it('should return a 400 if the article_id is not a integar', () => {
+			return request(app)
+				.get(`/api/articles/abc/comments`)
+				.expect(400)
+				.then((res) => {
+					expect(res.body.message).toBe('article_id must be an integar');
+				});
+		});
 	});
 });
