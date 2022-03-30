@@ -43,3 +43,14 @@ exports.patchArticleById = (article_id, inc_votes) => {
 			return result.rows[0];
 		});
 };
+
+exports.selectCommentsByArticleId = (article_id) => {
+	return db
+		.query(`SELECT * FROM comments WHERE comments.article_id = ${article_id}`)
+		.then((result) => {
+			if (!result.rows.length) {
+				return Promise.reject({ msg: 'Comments not found', status: 404 });
+			}
+			return result.rows;
+		});
+};

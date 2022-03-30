@@ -3,7 +3,6 @@ const app = require('../app');
 const seed = require('../db/seeds/seed');
 const data = require('../db/data/test-data/index');
 const db = require('../db/connection');
-require('jest-sorted');
 
 afterAll(() => {
 	return db.end();
@@ -73,7 +72,6 @@ describe('ARTICLES', () => {
 				});
 		});
 
-
 		it('should return a 201 and the updated article if exists and valid data is passed', () => {
 			return request(app)
 				.patch(`${ENDPOINT}/3`)
@@ -118,7 +116,6 @@ describe('ARTICLES', () => {
 				});
 		});
 
-
 		it('should return a 400 bad request if not given inc_votes as the correct data type', () => {
 			return request(app)
 				.patch(`/api/articles/4`)
@@ -148,6 +145,33 @@ describe('ARTICLES', () => {
 					expect(res.body.article.votes).toBe(3);
 				});
 		});
+	});
 
+	describe('GET /api/articles/:article_id/comments', () => {
+		it('should return a 404 not found if the article_id does not exist on any of the comments', () => {
+			return request(app)
+				.get(`/api/articles/112358/comments`)
+				.expect(404)
+				.then((res) => {
+					expect(res.body.message).toBe('Comments not found');
+				});
+		});
+
+		it('should return a 200 with an array of comments for the given article_id', () => {
+			return request(app)
+				.get('/api/articles/1/comments')
+				.expect(200)
+				.then((res) => {
+					expect(res.body.comments).toBeInstanceOf(Array);
+					expect(res.body.comments[0]).toMatchObject({
+						comment_id: expect.any(Number),
+						votes: expect.any(Number),
+						created_at: expect.any(String),
+						author: expect.any(String),
+						body: expect.any(String),
+					});
+					expect(res.body.comments.length).toBe(11);
+				});
+		});
 	});
 });
