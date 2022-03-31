@@ -3,10 +3,13 @@ const {
 	selectArticleById,
 	patchArticleById,
 	selectCommentsByArticleId,
+	postComment,
 } = require('../models/article.model');
 
 exports.getArticles = (req, res, next) => {
-	selectArticles()
+	const { sort_by, order, topic } = req.query;
+
+	selectArticles(sort_by, order, topic)
 		.then((articles) => {
 			res.status(200).send({ articles });
 		})
@@ -56,4 +59,26 @@ exports.getCommentsByArticleId = (req, res, next) => {
 			res.status(200).send({ comments });
 		})
 		.catch((err) => next(err));
+exports.addComment = (req, res, next) => {
+	const { article_id } = req.params;
+	const { username, body } = req.body;
+
+	if (Object.keys(req.body).length === 0 && req.body.constructor === Object) {
+		return next({ status: 400, msg: 'No body provided' });
+	}
+
+	if (!username || !body) {
+		return next({ status: 400, msg: 'Required fields missing' });
+	}
+
+	postComment(article_id, { username, body })
+		.then((comment) => {
+			res.status(201).send({ comment });
+		})
+		.catch((err) => {
+			if (err.code === '23503') {
+				return next({ status: 404, msg: 'Article not found' });
+			}
+			next(err);
+		});
 };
