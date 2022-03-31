@@ -1,6 +1,4 @@
 const db = require('../db/connection');
-var format = require('pg-format');
-const res = require('express/lib/response');
 
 exports.selectArticles = async (
 	sort_by = 'created_at',
@@ -8,8 +6,8 @@ exports.selectArticles = async (
 	topic
 ) => {
 	const allowedSortBy = ['article_id', 'created_at', 'votes', 'title'];
-	const allowedTopics = [];
 	const allowedOrderBy = ['DESC', 'desc', 'ASC', 'asc'];
+	const allowedTopics = [];
 
 	let topics = await db.query('SELECT DISTINCT topic FROM articles');
 	topics.rows.forEach((topic) => allowedTopics.push(topic.topic));
@@ -37,6 +35,7 @@ exports.selectArticles = async (
 	}
 
 	query.text += `GROUP BY articles.article_id ORDER BY ${sort_by} ${order};`;
+
 	return db.query(query).then((result) => {
 		if (!result.rows.length) {
 			return Promise.reject({ status: 400, msg: 'Articles not found' });
@@ -46,12 +45,21 @@ exports.selectArticles = async (
 };
 
 exports.selectArticleById = (article_id) => {
+	if (isNaN(parseInt(article_id))) {
+		return Promise.reject({
+			status: 400,
+			msg: 'article_id must be an integar',
+		});
+	}
+
 	let articles = db.query(
 		`SELECT * FROM articles WHERE articles.article_id = ${article_id} ;`
 	);
+
 	let comments = db.query(
 		`SELECT * FROM comments WHERE comments.article_id = ${article_id};`
 	);
+
 	const promises = [articles, comments];
 
 	return Promise.all(promises).then((result) => {
@@ -69,6 +77,21 @@ exports.selectArticleById = (article_id) => {
 };
 
 exports.patchArticleById = (article_id, inc_votes) => {
+	if (isNaN(parseInt(article_id))) {
+		return Promise.reject({
+			status: 400,
+			msg: 'article_id must be an integar',
+		});
+	}
+
+	if (inc_votes === undefined) {
+		return Promise.reject({ status: 400, msg: 'inc_votes is required' });
+	}
+
+	if (typeof inc_votes !== 'number') {
+		return Promise.reject({ status: 400, msg: 'inc_votes must be an integar' });
+	}
+
 	return db
 		.query(
 			`UPDATE articles SET votes = votes + ${inc_votes} WHERE article_id = ${article_id} RETURNING *;`
@@ -81,8 +104,23 @@ exports.patchArticleById = (article_id, inc_votes) => {
 		});
 };
 
-exports.postComment = (article_id, comment) => {
-	const { username, body } = comment;
+exports.postComment = (article_id, reqBody) => {
+	if (isNaN(parseInt(article_id))) {
+		return Promise.reject({
+			status: 400,
+			msg: 'article_id must be an integar',
+		});
+	}
+
+	const { username, body } = reqBody;
+
+	if (Object.keys(reqBody).length === 0 && reqBody.constructor === Object) {
+		return Promise.reject({ status: 400, msg: 'No body provided' });
+	}
+
+	if (!username || !body) {
+		return Promise.reject({ status: 400, msg: 'Required fields missing' });
+	}
 
 	return db
 		.query(
