@@ -8,16 +8,12 @@ exports.deleteComment = async (comment_id) => {
 		});
 	}
 
-	let result = await db.query(
-		`SELECT * FROM comments WHERE comment_id = ${comment_id}`
-	);
-
-	if (!result.rows.length) {
-		return Promise.reject({ status: 404, msg: 'Comment not found' });
-	}
 	return db
 		.query(`DELETE FROM comments WHERE comment_id = ${comment_id}`)
-		.then((arg) => {
+		.then((result) => {
+			if (result.rowCount === 0) {
+				return Promise.reject({ status: 404, msg: 'Comment not found' });
+			}
 			return;
 		});
 };
