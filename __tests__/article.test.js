@@ -57,9 +57,9 @@ describe('ARTICLES', () => {
 				.expect(404)
 				.then((res) => {
 					expect(res.body.message).toBe('Article not found');
-      })
-    })
-       
+				});
+		});
+
 		it("should return a 400 if the article_id isn't a number", () => {
 			return request(app)
 				.get(`${ENDPOINT}/abc`)
@@ -75,7 +75,7 @@ describe('ARTICLES', () => {
 			return request(app)
 				.patch(`${ENDPOINT}/3`)
 				.send({ inc_votes: 3 })
-				.expect(201)
+				.expect(200)
 				.then((res) => {
 					expect(res.body.article).toBeInstanceOf(Object);
 					expect(res.body.article).toMatchObject({
@@ -193,7 +193,7 @@ describe('ARTICLES', () => {
 					expect(res.body.articles).toBeSortedBy('votes', { descending: true });
 				});
 		});
-    
+
 		it('should return a 400 bad request if not given inc_votes as the correct data type', () => {
 			return request(app)
 				.get(`${ENDPOINT}?sort_by=votes`)
@@ -269,7 +269,7 @@ describe('ARTICLES', () => {
 		});
 	});
 
-  describe('GET /api/articles/:article_id/comments', () => {
+	describe('GET /api/articles/:article_id/comments', () => {
 		it('should return a 200 with an array of comments for the given article_id', () => {
 			return request(app)
 				.get('/api/articles/1/comments')
@@ -297,15 +297,14 @@ describe('ARTICLES', () => {
 		});
 
 		it('should return a 400 if the article_id is not a integar', () => {
-			return request(app)
-				.get(`/api/articles/abc/comments`)
-    })
-    
-    it("should return a 400 if the article_id isn't a number", () => {
+			return request(app).get(`/api/articles/abc/comments`);
+		});
+
+		it("should return a 400 if the article_id isn't a number", () => {
 			const comment = {
 				body: 'What a great article',
 				username: 'butter_bridge',
-      };
+			};
 
 			return request(app)
 				.post(`${ENDPOINT}/abc/comments`)

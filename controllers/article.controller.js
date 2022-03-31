@@ -54,6 +54,8 @@ exports.getCommentsByArticleId = (req, res, next) => {
 			res.status(200).send({ comments });
 		})
 		.catch((err) => next(err));
+};
+
 exports.addComment = (req, res, next) => {
 	const { article_id } = req.params;
 	const reqBody = req.body;

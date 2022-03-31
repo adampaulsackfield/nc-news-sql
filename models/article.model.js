@@ -112,17 +112,17 @@ exports.selectCommentsByArticleId = (article_id) => {
 				return Promise.reject({ msg: 'Comments not found', status: 404 });
 			}
 			return result.rows;
-exports.postComment = (article_id, comment) => {
-	const { username, body } = comment;
+		});
+};
+
 exports.postComment = (article_id, reqBody) => {
+	const { username, body } = reqBody;
 	if (isNaN(parseInt(article_id))) {
 		return Promise.reject({
 			status: 400,
 			msg: 'article_id must be an integar',
 		});
 	}
-
-	const { username, body } = reqBody;
 
 	if (Object.keys(reqBody).length === 0 && reqBody.constructor === Object) {
 		return Promise.reject({ status: 400, msg: 'No body provided' });
