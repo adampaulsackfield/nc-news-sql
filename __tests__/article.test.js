@@ -183,8 +183,26 @@ describe('ARTICLES', () => {
 				.expect(200)
 				.then((res) => {
 					expect(res.body.articles).toBeInstanceOf(Array);
-					expect(res.body.articles[0].topic).toBe('cats');
+					expect(res.body.articles.length).toBe(1);
 				});
 		});
+	});
+
+	it('should return a 404 if given a topic that does not exist', () => {
+		return request(app)
+			.get(`${ENDPOINT}?topic=dogs`)
+			.expect(404)
+			.then((res) => {
+				expect(res.body.message).toBe('topic not found');
+			});
+	});
+
+	it('should return a 400 if given a order_by that is not allowed', () => {
+		return request(app)
+			.get(`${ENDPOINT}?order=dogs`)
+			.expect(400)
+			.then((res) => {
+				expect(res.body.message).toBe('invalid order_by');
+			});
 	});
 });

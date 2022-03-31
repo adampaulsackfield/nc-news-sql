@@ -7,6 +7,7 @@ exports.selectArticles = async (
 ) => {
 	const allowedSortBy = ['article_id', 'created_at', 'votes', 'title'];
 	const allowedTopics = [];
+	const allowedOrderBy = ['DESC', 'desc', 'ASC', 'asc'];
 
 	let topics = await db.query('SELECT DISTINCT topic FROM articles');
 	topics.rows.forEach((topic) => allowedTopics.push(topic.topic));
@@ -15,8 +16,12 @@ exports.selectArticles = async (
 		return Promise.reject({ status: 400, msg: 'invalid sort_by' });
 	}
 
+	if (!allowedOrderBy.includes(order)) {
+		return Promise.reject({ status: 400, msg: 'invalid order_by' });
+	}
+
 	if (topic && !allowedTopics.includes(topic)) {
-		return Promise.reject({ status: 400, msg: 'invalid topic' });
+		return Promise.reject({ status: 404, msg: 'topic not found' });
 	}
 
 	const query = {
