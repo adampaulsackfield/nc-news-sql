@@ -16,7 +16,7 @@ describe('ARTICLES', () => {
 	describe('GET /api/articles/:article_id', () => {
 		it('should return a 404 not found if the article_id does not exist', () => {
 			return request(app)
-				.get(`/api/articles/112358`)
+				.get(`${ENDPOINT}/112358`)
 				.expect(404)
 				.then((res) => {
 					expect(res.body.message).toBe('Article not found');
@@ -50,6 +50,15 @@ describe('ARTICLES', () => {
 					expect(res.body.article.comment_count).toBe(2);
 				});
 		});
+
+		it("should return a 400 if the article_id isn't a number", () => {
+			return request(app)
+				.get(`${ENDPOINT}/abc`)
+				.expect(400)
+				.then((res) => {
+					expect(res.body.message).toBe('article_id must be an integar');
+				});
+		});
 	});
 
 	describe('PATCH /api/articles/:article_id', () => {
@@ -74,7 +83,7 @@ describe('ARTICLES', () => {
 
 		it('should return a 400 bad request if not given inc_votes as the correct data type', () => {
 			return request(app)
-				.patch(`/api/articles/4`)
+				.patch(`${ENDPOINT}/4`)
 				.send({ inc_votes: true })
 				.expect(400)
 				.then((res) => {
@@ -82,31 +91,21 @@ describe('ARTICLES', () => {
 				});
 		});
 
-		it('should return a 201 and the updated article if exists and valid data is passed', () => {
+		it("should return a 400 if the article_id isn't a number", () => {
 			return request(app)
-				.patch(`/api/articles/3`)
-				.send({ inc_votes: 3 })
-				.expect(201)
+				.patch(`${ENDPOINT}/abc`)
+				.send({ inc_votes: 4 })
+				.expect(400)
 				.then((res) => {
-					expect(res.body.article).toBeInstanceOf(Object);
-					expect(res.body.article).toMatchObject({
-						article_id: expect.any(Number),
-						title: expect.any(String),
-						topic: expect.any(String),
-						author: expect.any(String),
-						body: expect.any(String),
-						created_at: expect.any(String),
-						votes: expect.any(Number),
-					});
-					expect(res.body.article.votes).toBe(3);
+					expect(res.body.message).toBe('article_id must be an integar');
 				});
 		});
 
-		it('should return a 201 and the updated article if exists and valid data is passed', () => {
+		it('should return a 200 and the updated article if exists and valid data is passed', () => {
 			return request(app)
 				.patch(`${ENDPOINT}/3`)
 				.send({ inc_votes: 3 })
-				.expect(201)
+				.expect(200)
 				.then((res) => {
 					expect(res.body.article).toBeInstanceOf(Object);
 					expect(res.body.article).toMatchObject({
@@ -158,7 +157,7 @@ describe('ARTICLES', () => {
 		});
 
 		it('should be able to add a custom sort_by', () => {
-      return request(app)
+			return request(app)
 				.get(`${ENDPOINT}?sort_by=votes`)
 				.expect(200)
 				.then((res) => {
@@ -184,7 +183,6 @@ describe('ARTICLES', () => {
 					});
 				});
 		});
-	});
 
 		it('should be able to filter topics', () => {
 			return request(app)
@@ -195,24 +193,26 @@ describe('ARTICLES', () => {
 					expect(res.body.articles.length).toBe(1);
 				});
 		});
+
+		it('should return a 404 if given a topic that does not exist', () => {
+			return request(app)
+				.get(`${ENDPOINT}?topic=dogs`)
+				.expect(404)
+				.then((res) => {
+					expect(res.body.message).toBe('topic not found');
+				});
+		});
+
+		it('should return a 400 if given a order_by that is not allowed', () => {
+			return request(app)
+				.get(`${ENDPOINT}?order=dogs`)
+				.expect(400)
+				.then((res) => {
+					expect(res.body.message).toBe('invalid order_by');
+				});
+		});
 	});
 
-	it('should return a 404 if given a topic that does not exist', () => {
-		return request(app)
-			.get(`${ENDPOINT}?topic=dogs`)
-			.expect(404)
-			.then((res) => {
-				expect(res.body.message).toBe('topic not found');
-			});
-	});
-
-	it('should return a 400 if given a order_by that is not allowed', () => {
-		return request(app)
-			.get(`${ENDPOINT}?order=dogs`)
-			.expect(400)
-			.then((res) => {
-				expect(res.body.message).toBe('invalid order_by');
-			});
 	describe('POST /api/articles/:article_id/comments', () => {
 		it('should return a 404 status when no article_id matches', () => {
 			const comment = {
@@ -220,7 +220,7 @@ describe('ARTICLES', () => {
 				username: 'butter_bridge',
 			};
 			return request(app)
-				.post('/api/articles/22321312/comments')
+				.post(`${ENDPOINT}/22321312/comments`)
 				.send(comment)
 				.expect(404)
 				.then((res) => {
@@ -230,11 +230,26 @@ describe('ARTICLES', () => {
 
 		it('should return a 400 status when no body is sent with the request', () => {
 			return request(app)
-				.post('/api/articles/2/comments')
+				.post(`${ENDPOINT}/2/comments`)
 				.send()
 				.expect(400)
 				.then((res) => {
 					expect(res.body.message).toBe('No body provided');
+				});
+		});
+
+		it("should return a 400 if the article_id isn't a number", () => {
+			const comment = {
+				body: 'What a great article',
+				username: 'butter_bridge',
+			};
+
+			return request(app)
+				.post(`${ENDPOINT}/abc/comments`)
+				.send(comment)
+				.expect(400)
+				.then((res) => {
+					expect(res.body.message).toBe('article_id must be an integar');
 				});
 		});
 
@@ -243,7 +258,7 @@ describe('ARTICLES', () => {
 				body: 'What a great article',
 			};
 			return request(app)
-				.post('/api/articles/3/comments')
+				.post(`${ENDPOINT}/3/comments`)
 				.send(comment)
 				.expect(400)
 				.then((res) => {
@@ -257,7 +272,7 @@ describe('ARTICLES', () => {
 				username: 'butter_bridge',
 			};
 			return request(app)
-				.post('/api/articles/2/comments')
+				.post(`${ENDPOINT}/2/comments`)
 				.send(comment)
 				.expect(201)
 				.then((res) => {
