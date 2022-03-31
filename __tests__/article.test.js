@@ -149,6 +149,20 @@ describe('ARTICLES', () => {
 	});
 
 	describe('POST /api/articles/:article_id/comments', () => {
+		it('should return a 404 status when no article_id matches', () => {
+			const comment = {
+				body: 'What a great article',
+				username: 'butter_bridge',
+			};
+			return request(app)
+				.post('/api/articles/22321312/comments')
+				.send(comment)
+				.expect(404)
+				.then((res) => {
+					expect(res.body.message).toBe('Article not found');
+				});
+		});
+
 		it('should return a 400 status when no body is sent with the request', () => {
 			return request(app)
 				.post('/api/articles/2/comments')
@@ -164,7 +178,7 @@ describe('ARTICLES', () => {
 				body: 'What a great article',
 			};
 			return request(app)
-				.post('/api/articles/2/comments')
+				.post('/api/articles/3/comments')
 				.send(comment)
 				.expect(400)
 				.then((res) => {
@@ -175,7 +189,7 @@ describe('ARTICLES', () => {
 		it('should return a status of 201 and the new comment when successfully added', () => {
 			const comment = {
 				body: 'What a great article',
-				username: 'Sergei Rachmaninov',
+				username: 'butter_bridge',
 			};
 			return request(app)
 				.post('/api/articles/2/comments')
