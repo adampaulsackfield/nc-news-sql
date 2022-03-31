@@ -104,6 +104,16 @@ exports.patchArticleById = (article_id, inc_votes) => {
 		});
 };
 
+exports.selectCommentsByArticleId = (article_id) => {
+	return db
+		.query(`SELECT * FROM comments WHERE comments.article_id = ${article_id}`)
+		.then((result) => {
+			if (!result.rows.length) {
+				return Promise.reject({ msg: 'Comments not found', status: 404 });
+			}
+			return result.rows;
+exports.postComment = (article_id, comment) => {
+	const { username, body } = comment;
 exports.postComment = (article_id, reqBody) => {
 	if (isNaN(parseInt(article_id))) {
 		return Promise.reject({

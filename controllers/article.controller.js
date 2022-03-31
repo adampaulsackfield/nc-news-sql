@@ -2,6 +2,7 @@ const {
 	selectArticles,
 	selectArticleById,
 	patchArticleById,
+	selectCommentsByArticleId,
 	postComment,
 } = require('../models/article.model');
 
@@ -36,6 +37,23 @@ exports.updateArticleById = (req, res, next) => {
 		.catch((err) => next(err));
 };
 
+exports.getCommentsByArticleId = (req, res, next) => {
+	const { article_id } = req.params;
+
+	const parsedArticleId = parseInt(article_id);
+
+	if (isNaN(parsedArticleId)) {
+		return next({
+			status: 400,
+			msg: 'article_id must be an integar',
+		});
+	}
+
+	selectCommentsByArticleId(parsedArticleId)
+		.then((comments) => {
+			res.status(200).send({ comments });
+		})
+		.catch((err) => next(err));
 exports.addComment = (req, res, next) => {
 	const { article_id } = req.params;
 	const reqBody = req.body;

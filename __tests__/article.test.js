@@ -51,6 +51,15 @@ describe('ARTICLES', () => {
 				});
 		});
 
+		it('should return a 404 not found if the article_id does not exist', () => {
+			return request(app)
+				.get(`/api/articles/112358`)
+				.expect(404)
+				.then((res) => {
+					expect(res.body.message).toBe('Article not found');
+      })
+    })
+       
 		it("should return a 400 if the article_id isn't a number", () => {
 			return request(app)
 				.get(`${ENDPOINT}/abc`)
@@ -62,6 +71,26 @@ describe('ARTICLES', () => {
 	});
 
 	describe('PATCH /api/articles/:article_id', () => {
+		it('should return a 201 and the updated article if exists and valid data is passed', () => {
+			return request(app)
+				.patch(`${ENDPOINT}/3`)
+				.send({ inc_votes: 3 })
+				.expect(201)
+				.then((res) => {
+					expect(res.body.article).toBeInstanceOf(Object);
+					expect(res.body.article).toMatchObject({
+						article_id: expect.any(Number),
+						title: expect.any(String),
+						topic: expect.any(String),
+						author: expect.any(String),
+						body: expect.any(String),
+						created_at: expect.any(String),
+						votes: expect.any(Number),
+					});
+					expect(res.body.article.votes).toBe(3);
+				});
+		});
+
 		it('should return a 404 not found if the article_id does not exist', () => {
 			return request(app)
 				.patch(`${ENDPOINT}/112358`)
@@ -80,7 +109,9 @@ describe('ARTICLES', () => {
 					expect(res.body.message).toBe('inc_votes is required');
 				});
 		});
+	});
 
+	describe('GET /api/articles', () => {
 		it('should return a 400 bad request if not given inc_votes as the correct data type', () => {
 			return request(app)
 				.patch(`${ENDPOINT}/4`)
@@ -103,7 +134,7 @@ describe('ARTICLES', () => {
 
 		it('should return a 200 and the updated article if exists and valid data is passed', () => {
 			return request(app)
-				.patch(`${ENDPOINT}/3`)
+				.patch(`/api/articles/3`)
 				.send({ inc_votes: 3 })
 				.expect(200)
 				.then((res) => {
@@ -120,9 +151,7 @@ describe('ARTICLES', () => {
 					expect(res.body.article.votes).toBe(3);
 				});
 		});
-	});
 
-	describe('GET /api/articles', () => {
 		it('should return an array of articles, with a comment count for each article', () => {
 			return request(app)
 				.get(`${ENDPOINT}`)
@@ -164,6 +193,7 @@ describe('ARTICLES', () => {
 					expect(res.body.articles).toBeSortedBy('votes', { descending: true });
 				});
 		});
+    
 		it('should return a 400 bad request if not given inc_votes as the correct data type', () => {
 			return request(app)
 				.get(`${ENDPOINT}?sort_by=votes`)
@@ -237,12 +267,45 @@ describe('ARTICLES', () => {
 					expect(res.body.message).toBe('No body provided');
 				});
 		});
+	});
 
-		it("should return a 400 if the article_id isn't a number", () => {
+  describe('GET /api/articles/:article_id/comments', () => {
+		it('should return a 200 with an array of comments for the given article_id', () => {
+			return request(app)
+				.get('/api/articles/1/comments')
+				.expect(200)
+				.then((res) => {
+					expect(res.body.comments).toBeInstanceOf(Array);
+					expect(res.body.comments[0]).toMatchObject({
+						comment_id: expect.any(Number),
+						votes: expect.any(Number),
+						created_at: expect.any(String),
+						author: expect.any(String),
+						body: expect.any(String),
+					});
+					expect(res.body.comments.length).toBe(11);
+				});
+		});
+
+		it('should return a 404 not found if the article_id does not exist on any of the comments', () => {
+			return request(app)
+				.get(`/api/articles/112358/comments`)
+				.expect(404)
+				.then((res) => {
+					expect(res.body.message).toBe('Comments not found');
+				});
+		});
+
+		it('should return a 400 if the article_id is not a integar', () => {
+			return request(app)
+				.get(`/api/articles/abc/comments`)
+    })
+    
+    it("should return a 400 if the article_id isn't a number", () => {
 			const comment = {
 				body: 'What a great article',
 				username: 'butter_bridge',
-			};
+      };
 
 			return request(app)
 				.post(`${ENDPOINT}/abc/comments`)
