@@ -73,7 +73,6 @@ describe('ARTICLES', () => {
 				});
 		});
 
-
 		it('should return a 201 and the updated article if exists and valid data is passed', () => {
 			return request(app)
 				.patch(`${ENDPOINT}/3`)
@@ -118,7 +117,6 @@ describe('ARTICLES', () => {
 				});
 		});
 
-
 		it('should return a 400 bad request if not given inc_votes as the correct data type', () => {
 			return request(app)
 				.patch(`/api/articles/4`)
@@ -148,6 +146,65 @@ describe('ARTICLES', () => {
 					expect(res.body.article.votes).toBe(3);
 				});
 		});
+	});
 
+	describe('POST /api/articles/:article_id/comments', () => {
+		it('should return a 404 status when no article_id matches', () => {
+			const comment = {
+				body: 'What a great article',
+				username: 'butter_bridge',
+			};
+			return request(app)
+				.post('/api/articles/22321312/comments')
+				.send(comment)
+				.expect(404)
+				.then((res) => {
+					expect(res.body.message).toBe('Article not found');
+				});
+		});
+
+		it('should return a 400 status when no body is sent with the request', () => {
+			return request(app)
+				.post('/api/articles/2/comments')
+				.send()
+				.expect(400)
+				.then((res) => {
+					expect(res.body.message).toBe('No body provided');
+				});
+		});
+
+		it('should return a 400 status if any fields are missing from the body', () => {
+			const comment = {
+				body: 'What a great article',
+			};
+			return request(app)
+				.post('/api/articles/3/comments')
+				.send(comment)
+				.expect(400)
+				.then((res) => {
+					expect(res.body.message).toBe('Required fields missing');
+				});
+		});
+
+		it('should return a status of 201 and the new comment when successfully added', () => {
+			const comment = {
+				body: 'What a great article',
+				username: 'butter_bridge',
+			};
+			return request(app)
+				.post('/api/articles/2/comments')
+				.send(comment)
+				.expect(201)
+				.then((res) => {
+					expect(res.body.comment).toMatchObject({
+						comment_id: expect.any(Number),
+						body: comment.body,
+						votes: 0,
+						author: comment.username,
+						article_id: 2,
+						created_at: expect.any(String),
+					});
+				});
+		});
 	});
 });
