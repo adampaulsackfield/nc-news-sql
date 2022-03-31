@@ -3,7 +3,6 @@ const app = require('../app');
 const seed = require('../db/seeds/seed');
 const data = require('../db/data/test-data/index');
 const db = require('../db/connection');
-require('jest-sorted');
 
 afterAll(() => {
 	return db.end();
@@ -73,6 +72,35 @@ describe('ARTICLES', () => {
 				});
 		});
 
+		it('should return a 400 bad request if not given inc_votes as the correct data type', () => {
+			return request(app)
+				.patch(`/api/articles/4`)
+				.send({ inc_votes: true })
+				.expect(400)
+				.then((res) => {
+					expect(res.body.message).toBe('inc_votes must be an integar');
+				});
+		});
+
+		it('should return a 201 and the updated article if exists and valid data is passed', () => {
+			return request(app)
+				.patch(`/api/articles/3`)
+				.send({ inc_votes: 3 })
+				.expect(201)
+				.then((res) => {
+					expect(res.body.article).toBeInstanceOf(Object);
+					expect(res.body.article).toMatchObject({
+						article_id: expect.any(Number),
+						title: expect.any(String),
+						topic: expect.any(String),
+						author: expect.any(String),
+						body: expect.any(String),
+						created_at: expect.any(String),
+						votes: expect.any(Number),
+					});
+					expect(res.body.article.votes).toBe(3);
+				});
+		});
 
 		it('should return a 201 and the updated article if exists and valid data is passed', () => {
 			return request(app)
@@ -118,36 +146,45 @@ describe('ARTICLES', () => {
 				});
 		});
 
-
-		it('should return a 400 bad request if not given inc_votes as the correct data type', () => {
+		it('should retuan a default sort_by = created_at in descending order', () => {
 			return request(app)
-				.patch(`/api/articles/4`)
-				.send({ inc_votes: true })
-				.expect(400)
+				.get(`${ENDPOINT}`)
+				.expect(200)
 				.then((res) => {
-					expect(res.body.message).toBe('inc_votes must be an integar');
-				});
-		});
-
-		it('should return a 201 and the updated article if exists and valid data is passed', () => {
-			return request(app)
-				.patch(`/api/articles/3`)
-				.send({ inc_votes: 3 })
-				.expect(201)
-				.then((res) => {
-					expect(res.body.article).toBeInstanceOf(Object);
-					expect(res.body.article).toMatchObject({
-						article_id: expect.any(Number),
-						title: expect.any(String),
-						topic: expect.any(String),
-						author: expect.any(String),
-						body: expect.any(String),
-						created_at: expect.any(String),
-						votes: expect.any(Number),
+					expect(res.body.articles).toBeSortedBy('created_at', {
+						descending: true,
 					});
-					expect(res.body.article.votes).toBe(3);
 				});
 		});
 
+		it('should be able to add a custom sort_by', () => {
+			return request(app)
+				.get(`${ENDPOINT}?sort_by=votes`)
+				.expect(200)
+				.then((res) => {
+					expect(res.body.articles).toBeSortedBy('votes', { descending: true });
+				});
+		});
+
+		it('should be able to add a custom sort_by ASC or DESC', () => {
+			return request(app)
+				.get(`${ENDPOINT}?sort_by=votes&order=ASC`)
+				.expect(200)
+				.then((res) => {
+					expect(res.body.articles).toBeSortedBy('votes', {
+						descending: false,
+					});
+				});
+		});
+
+		it('should be able to filter topics', () => {
+			return request(app)
+				.get(`${ENDPOINT}?topic=cats`)
+				.expect(200)
+				.then((res) => {
+					expect(res.body.articles).toBeInstanceOf(Array);
+					expect(res.body.articles[0].topic).toBe('cats');
+				});
+		});
 	});
 });

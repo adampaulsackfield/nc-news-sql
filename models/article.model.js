@@ -1,11 +1,41 @@
 const db = require('../db/connection');
 
-exports.selectArticles = async () => {
-	let articlesResult = await db.query(
-		`SELECT articles.author, articles.title, articles.article_id, articles.topic, articles.votes, articles.created_at, COUNT(articles.article_id)::INT AS comment_count FROM articles FULL JOIN comments ON articles.article_id = comments.article_id GROUP BY articles.article_id ORDER BY articles.created_at DESC;`
-	);
+exports.selectArticles = async (
+	sort_by = 'created_at',
+	order = 'DESC',
+	topic
+) => {
+	const allowedSortBy = ['article_id', 'created_at', 'votes', 'title'];
+	const allowedTopics = [];
 
-	return articlesResult.rows;
+	let topics = await db.query('SELECT DISTINCT topic FROM articles');
+	topics.rows.forEach((topic) => allowedTopics.push(topic.topic));
+
+	if (!allowedSortBy.includes(sort_by)) {
+		return Promise.reject({ status: 400, msg: 'invalid sort_by' });
+	}
+
+	if (topic && !allowedTopics.includes(topic)) {
+		return Promise.reject({ status: 400, msg: 'invalid topic' });
+	}
+
+	const query = {
+		text: 'SELECT articles.author, articles.title, articles.article_id, articles.topic, articles.votes, articles.created_at, COUNT(articles.article_id)::INT AS comment_count FROM articles FULL JOIN comments ON articles.article_id = comments.article_id ',
+		values: [],
+	};
+
+	if (topic) {
+		query.text += `WHERE topic = $1 `;
+		query.values.push(topic);
+	}
+
+	query.text += `GROUP BY articles.article_id ORDER BY ${sort_by} ${order};`;
+	return db.query(query).then((result) => {
+		if (!result.rows.length) {
+			return Promise.reject({ status: 400, msg: 'Articles not found' });
+		}
+		return result.rows;
+	});
 };
 
 exports.selectArticleById = (article_id) => {
