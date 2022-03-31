@@ -1,4 +1,6 @@
 const db = require('../db/connection');
+var format = require('pg-format');
+const res = require('express/lib/response');
 
 exports.selectArticles = async (
 	sort_by = 'created_at',
@@ -70,6 +72,22 @@ exports.patchArticleById = (article_id, inc_votes) => {
 	return db
 		.query(
 			`UPDATE articles SET votes = votes + ${inc_votes} WHERE article_id = ${article_id} RETURNING *;`
+		)
+		.then((result) => {
+			if (!result.rows.length) {
+				return Promise.reject({ msg: 'Article not found', status: 404 });
+			}
+			return result.rows[0];
+		});
+};
+
+exports.postComment = (article_id, comment) => {
+	const { username, body } = comment;
+
+	return db
+		.query(
+			`INSERT INTO comments (article_id, author, body) VALUES ($1, $2, $3) RETURNING *`,
+			[article_id, username, body]
 		)
 		.then((result) => {
 			if (!result.rows.length) {
