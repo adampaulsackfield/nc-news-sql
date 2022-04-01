@@ -6,7 +6,27 @@
 
 ## About
 
-This is a RESTful API for articles, comments and users. It includes multiple endpoints with various params and queries. You can view `/api` to get a list of all available endpoints.
+This is a RESTful API for articles, comments and users. It includes multiple endpoints with various params and queries. You can view `/api` to get a list of all available endpoints. It uses NodeJS and Express to build out a web server, we use Express Router to handle routing, makes use of Error handling and we have implemented unit testing with Jest and Supertest. Checkout the link above to view all endpoints available.
+
+## Dependencies
+
+- dotenv
+
+- express
+
+- pg
+
+## Dev Dependencies
+
+- husky
+
+- jest
+
+- jest-extended
+
+- jest-sorted
+
+- pg-format
 
 ## Using this API
 
@@ -27,3 +47,17 @@ This is a RESTful API for articles, comments and users. It includes multiple end
 - Node - `v17.8.0`
 
 - Postgres - `psql (PostgreSQL) 14.2`
+
+## Available Scripts
+
+- `setup-dbs` - uses psql to create databases
+
+- `seed` - used to seed the database with test data
+
+- `test` - runs the test suite
+
+- `prepare` - sets up husky, used for testing prior to commits
+
+- `seed:prod` - used for seeding the production database
+
+- `start` - uses node to start the application
