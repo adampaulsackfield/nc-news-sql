@@ -4,7 +4,9 @@ const User = require('./user.model');
 exports.selectArticles = async (
 	sort_by = 'created_at',
 	order = 'DESC',
-	topic
+	topic,
+	limit = 10,
+	p = 1
 ) => {
 	const allowedSortBy = ['article_id', 'created_at', 'votes', 'title'];
 	const allowedOrderBy = ['DESC', 'desc', 'ASC', 'asc'];
@@ -35,7 +37,9 @@ exports.selectArticles = async (
 		query.values.push(topic);
 	}
 
-	query.text += `GROUP BY articles.article_id ORDER BY ${sort_by} ${order};`;
+	query.text += `GROUP BY articles.article_id ORDER BY ${sort_by} ${order} `;
+
+	query.text += `LIMIT ${limit} OFFSET ${limit * (p - 1)};`;
 
 	const result = await db.query(query);
 

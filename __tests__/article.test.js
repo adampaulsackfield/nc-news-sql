@@ -147,14 +147,33 @@ describe('ARTICLES', () => {
 						votes: expect.any(Number),
 						comment_count: expect.any(Number),
 					});
-					expect(res.body.articles.length).toBe(12);
+					expect(res.body.articles.length).toBe(10);
 					expect(res.body.articles).toBeSortedBy('created_at', {
 						descending: true,
 					});
 				});
 		});
 
-		it('should retuan a default sort_by = created_at in descending order', () => {
+		it('should return a custom limit if provided a limit', () => {
+			return request(app)
+				.get(`${ENDPOINT}?limit=5`)
+				.expect(200)
+				.then((res) => {
+					expect(res.body.articles).toBeInstanceOf(Array);
+					expect(res.body.articles[0]).toMatchObject({
+						article_id: expect.any(Number),
+						title: expect.any(String),
+						topic: expect.any(String),
+						author: expect.any(String),
+						created_at: expect.any(String),
+						votes: expect.any(Number),
+						comment_count: expect.any(Number),
+					});
+					expect(res.body.articles.length).toBe(5);
+				});
+		});
+
+		it('should return a default sort_by = created_at in descending order', () => {
 			return request(app)
 				.get(`${ENDPOINT}`)
 				.expect(200)
