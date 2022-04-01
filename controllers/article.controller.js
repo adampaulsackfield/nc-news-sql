@@ -80,10 +80,5 @@ exports.addArticle = (req, res, next) => {
 		.then((article) => {
 			res.status(201).send({ article });
 		})
-		.catch((err) => {
-			// if (err.code === '23503') {
-			// 	return next({ status: 404, msg: 'Username not found' });
-			// }
-			next(err);
-		});
+		.catch((err) => next(err));
 };
