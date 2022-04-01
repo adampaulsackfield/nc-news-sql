@@ -10,10 +10,10 @@ afterAll(() => {
 
 beforeEach(() => seed(data));
 
+const ENDPOINT = '/api/topics';
+
 describe('TOPICS', () => {
 	describe('GET /api/topics', () => {
-		const ENDPOINT = '/api/topics';
-
 		it('should return an array of topics', () => {
 			return request(app)
 				.get(ENDPOINT)

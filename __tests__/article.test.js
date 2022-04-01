@@ -252,7 +252,7 @@ describe('ARTICLES', () => {
 	describe('GET /api/articles/:article_id/comments', () => {
 		it('should return a 200 with an array of comments for the given article_id', () => {
 			return request(app)
-				.get('/api/articles/1/comments')
+				.get(`${ENDPOINT}/1/comments`)
 				.expect(200)
 				.then((res) => {
 					expect(res.body.comments).toBeInstanceOf(Array);
@@ -269,7 +269,7 @@ describe('ARTICLES', () => {
 
 		it('should return a 404 not found if the article_id does not exist on any of the comments', () => {
 			return request(app)
-				.get(`/api/articles/112358/comments`)
+				.get(`${ENDPOINT}/112358/comments`)
 				.expect(404)
 				.then((res) => {
 					expect(res.body.message).toBe('Comments not found');

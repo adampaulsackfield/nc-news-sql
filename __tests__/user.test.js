@@ -10,10 +10,10 @@ afterAll(() => {
 
 beforeEach(() => seed(data));
 
+const ENDPOINT = '/api/users';
+
 describe('USERS', () => {
 	describe('GET /api/users', () => {
-		const ENDPOINT = '/api/users';
-
 		it('should return an array of users', () => {
 			return request(app)
 				.get(ENDPOINT)
@@ -26,4 +26,6 @@ describe('USERS', () => {
 				});
 		});
 	});
+
+	describe('GET /api/users/:username', () => {});
 });
