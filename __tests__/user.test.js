@@ -21,8 +21,6 @@ describe('USERS', () => {
 				.then((res) => {
 					expect(res.body.users).toBeInstanceOf(Array);
 					expect(res.body.users[0]).toMatchObject({
-						avatar_url: expect.any(String),
-						name: expect.any(String),
 						username: expect.any(String),
 					});
 				});

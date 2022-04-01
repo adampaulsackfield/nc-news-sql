@@ -12,9 +12,11 @@ const {
 } = require('./controllers/article.controller');
 const { getTopics } = require('./controllers/topic.controller');
 const { removeComment } = require('./controllers/comment.controller');
+const { getEndpoints } = require('./controllers/endpoints.controller');
 
 app.use(express.json());
 
+app.get('/api', getEndpoints);
 app.get('/api/users', getUsers);
 app.get('/api/articles/:article_id', getArticleById);
 app.patch('/api/articles/:article_id', updateArticleById);
