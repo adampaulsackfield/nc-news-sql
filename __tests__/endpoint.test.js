@@ -5,7 +5,7 @@ const fs = require('fs/promises');
 describe('ENDPOINT.JSON', () => {
 	describe('GET /api', () => {
 		it('should return a status of 200 and a JSON object for our endpoints', async () => {
-			let expected = await fs.readFile(`./endpoints.json`, 'utf-8');
+			const expected = await fs.readFile(`./endpoints.json`, 'utf-8');
 
 			return request(app)
 				.get('/api')
