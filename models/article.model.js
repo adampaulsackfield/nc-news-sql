@@ -1,4 +1,5 @@
 const db = require('../db/connection');
+const User = require('./user.model');
 
 exports.selectArticles = async (
 	sort_by = 'created_at',
@@ -143,4 +144,43 @@ exports.postComment = (article_id, reqBody) => {
 			}
 			return result.rows[0];
 		});
+};
+
+exports.postArticle = async (author, body, title, topic) => {
+	if (!author || !body || !title || !topic) {
+		return Promise.reject({ status: 400, msg: 'Required fields are missing' });
+	}
+
+	if (
+		typeof author !== 'string' ||
+		typeof body !== 'string' ||
+		typeof title !== 'string' ||
+		typeof topic !== 'string'
+	) {
+		return Promise.reject({ status: 400, msg: 'Incorrect data types' });
+	}
+
+	const validUsernames = await (
+		await User.selectUsers()
+	).map((e) => e.username);
+
+	if (!validUsernames.includes(author)) {
+		return Promise.reject({
+			status: 404,
+			msg: 'Author not found',
+		});
+	}
+
+	const query = {
+		text: `INSERT INTO articles (author, body, title, topic) VALUES ($1, $2, $3, $4) RETURNING article_id`,
+		values: [author, body, title, topic],
+	};
+
+	const result = await db.query(query);
+
+	const article_id = result.rows[0].article_id;
+
+	const article = await this.selectArticleById(article_id);
+
+	return article;
 };

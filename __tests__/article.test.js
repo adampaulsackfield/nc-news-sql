@@ -329,4 +329,83 @@ describe('ARTICLES', () => {
 				});
 		});
 	});
+
+	describe('POST /api/articles', () => {
+		it('should return a 201 status and the new article', () => {
+			const input = {
+				author: 'lurker',
+				title: 'This is a new article',
+				body: 'This is the body for that article',
+				topic: 'cats',
+			};
+			const expected = {
+				article_id: expect.any(Number),
+				title: 'This is a new article',
+				topic: 'cats',
+				author: 'lurker',
+				body: 'This is the body for that article',
+				created_at: expect.any(String),
+				votes: 0,
+				comment_count: 0,
+			};
+
+			return request(app)
+				.post(`${ENDPOINT}`)
+				.send(input)
+				.expect(201)
+				.then((res) => {
+					expect(res.body.article).toEqual(expected);
+				});
+		});
+
+		it('should return a 400 status when not provided all required fields', () => {
+			const input = {
+				author: 'lurker',
+				body: 'This is the body for that article',
+				topic: 'cats',
+			};
+
+			return request(app)
+				.post(`${ENDPOINT}`)
+				.send(input)
+				.expect(400)
+				.then((res) => {
+					expect(res.body.message).toEqual('Required fields are missing');
+				});
+		});
+
+		it('should return a 400 status when not provided all required fields with the correct datatypes', () => {
+			const input = {
+				author: 'lurker',
+				title: 'This is a new article',
+				body: 'This is the body for that article',
+				topic: 6,
+			};
+
+			return request(app)
+				.post(`${ENDPOINT}`)
+				.send(input)
+				.expect(400)
+				.then((res) => {
+					expect(res.body.message).toEqual('Incorrect data types');
+				});
+		});
+
+		it('should return a 404 status when the username does not exist', () => {
+			const input = {
+				author: 'noname',
+				title: 'This is a new article',
+				body: 'This is the body for that article',
+				topic: 'cats',
+			};
+
+			return request(app)
+				.post(`${ENDPOINT}`)
+				.send(input)
+				.expect(404)
+				.then((res) => {
+					expect(res.body.message).toEqual('Author not found');
+				});
+		});
+	});
 });

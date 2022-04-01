@@ -4,6 +4,7 @@ const {
 	patchArticleById,
 	selectCommentsByArticleId,
 	postComment,
+	postArticle,
 } = require('../models/article.model');
 
 exports.getArticles = (req, res, next) => {
@@ -68,6 +69,21 @@ exports.addComment = (req, res, next) => {
 			if (err.code === '23503') {
 				return next({ status: 404, msg: 'Article not found' });
 			}
+			next(err);
+		});
+};
+
+exports.addArticle = (req, res, next) => {
+	const { author, body, title, topic } = req.body;
+
+	postArticle(author, body, title, topic)
+		.then((article) => {
+			res.status(201).send({ article });
+		})
+		.catch((err) => {
+			// if (err.code === '23503') {
+			// 	return next({ status: 404, msg: 'Username not found' });
+			// }
 			next(err);
 		});
 };
