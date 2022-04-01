@@ -107,5 +107,17 @@
 		"description": "deletes comments based on a given comment_id",
 		"params": ["comment_id"],
 		"status": 204
+	},
+	"GET /api/users/:username": {
+		"description": "serves a user matching a given username",
+		"params": ["username"],
+		"status": 200,
+		"exampleResponse": {
+			"user": {
+				"username": "lurker",
+				"name": "do_nothing",
+				"avatar_url": "https://www.golenbock.com/wp-content/uploads/2015/01/placeholder-user.png"
+			}
+		}
 	}
 }
