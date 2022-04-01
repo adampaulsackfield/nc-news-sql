@@ -119,5 +119,21 @@
 				"avatar_url": "https://www.golenbock.com/wp-content/uploads/2015/01/placeholder-user.png"
 			}
 		}
+	},
+	"PATCH /api/comments/:comment_id": {
+		"description": "serves a user matching a given username",
+		"params": ["comment_id"],
+		"body": ["inc_votes"],
+		"status": 200,
+		"exampleResponse": {
+			"comment": {
+				"comment_id": 2,
+				"body": "The beautiful thing about treasure is that it exists. Got to find out what kind of sheets these are; not cotton, not rayon, silky.",
+				"article_id": 1,
+				"author": "butter_bridge",
+				"votes": 16,
+				"created_at": "2020-10-31T03:03:00.000Z"
+			}
+		}
 	}
 }
