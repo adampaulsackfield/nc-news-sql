@@ -1,6 +1,6 @@
 const db = require('../db/connection');
 
-exports.deleteComment = (comment_id) => {
+exports.deleteComment = async (comment_id) => {
 	if (isNaN(parseInt(comment_id))) {
 		return Promise.reject({
 			status: 400,
@@ -8,17 +8,21 @@ exports.deleteComment = (comment_id) => {
 		});
 	}
 
-	return db
-		.query(`DELETE FROM comments WHERE comment_id = ${comment_id}`)
-		.then((result) => {
-			if (result.rowCount === 0) {
-				return Promise.reject({ status: 404, msg: 'Comment not found' });
-			}
-			return;
-		});
+	const query = {
+		text: 'DELETE FROM comments WHERE comment_id = $1;',
+		values: [comment_id],
+	};
+
+	const result = await db.query(query);
+
+	if (result.rowCount === 0) {
+		return Promise.reject({ status: 404, msg: 'Comment not found' });
+	}
+
+	return;
 };
 
-exports.patchCommentById = (comment_id, inc_votes) => {
+exports.patchCommentById = async (comment_id, inc_votes) => {
 	if (isNaN(parseInt(comment_id))) {
 		return Promise.reject({
 			status: 400,
@@ -33,14 +37,16 @@ exports.patchCommentById = (comment_id, inc_votes) => {
 		});
 	}
 
-	return db
-		.query(
-			`UPDATE comments SET votes = votes + ${inc_votes} WHERE comment_id = ${comment_id} RETURNING *`
-		)
-		.then((result) => {
-			if (!result.rows.length) {
-				return Promise.reject({ msg: 'Comment not found', status: 404 });
-			}
-			return result.rows[0];
-		});
+	const query = {
+		text: 'UPDATE comments SET votes = votes + $1 WHERE comment_id = $2 RETURNING *;',
+		values: [inc_votes, comment_id],
+	};
+
+	const result = await db.query(query);
+
+	if (!result.rows.length) {
+		return Promise.reject({ msg: 'Comment not found', status: 404 });
+	}
+
+	return result.rows[0];
 };

@@ -37,15 +37,16 @@ exports.selectArticles = async (
 
 	query.text += `GROUP BY articles.article_id ORDER BY ${sort_by} ${order};`;
 
-	return db.query(query).then((result) => {
-		if (!result.rows.length) {
-			return Promise.reject({ status: 400, msg: 'Articles not found' });
-		}
-		return result.rows;
-	});
+	const result = await db.query(query);
+
+	if (!result.rows.length) {
+		return Promise.reject({ status: 400, msg: 'Articles not found' });
+	}
+
+	return result.rows;
 };
 
-exports.selectArticleById = (article_id) => {
+exports.selectArticleById = async (article_id) => {
 	if (isNaN(parseInt(article_id))) {
 		return Promise.reject({
 			status: 400,
@@ -53,31 +54,37 @@ exports.selectArticleById = (article_id) => {
 		});
 	}
 
-	let articles = db.query(
-		`SELECT * FROM articles WHERE articles.article_id = ${article_id} ;`
-	);
+	const articlesQuery = {
+		text: `SELECT * FROM articles WHERE articles.article_id = $1 ;`,
+		values: [article_id],
+	};
 
-	let comments = db.query(
-		`SELECT * FROM comments WHERE comments.article_id = ${article_id};`
-	);
+	const commentsQuery = {
+		text: `SELECT * FROM comments WHERE comments.article_id = $1;`,
+		values: [article_id],
+	};
+
+	let articles = db.query(articlesQuery);
+
+	let comments = db.query(commentsQuery);
 
 	const promises = [articles, comments];
 
-	return Promise.all(promises).then((result) => {
-		if (!result[0].rows.length) {
-			return Promise.reject({ msg: 'Article not found', status: 404 });
-		}
+	const result = await Promise.all(promises);
 
-		const article = {
-			...result[0].rows[0],
-			comment_count: result[1].rows.length,
-		};
+	if (!result[0].rows.length) {
+		return Promise.reject({ msg: 'Article not found', status: 404 });
+	}
 
-		return article;
-	});
+	const article = {
+		...result[0].rows[0],
+		comment_count: result[1].rows.length,
+	};
+
+	return article;
 };
 
-exports.patchArticleById = (article_id, inc_votes) => {
+exports.patchArticleById = async (article_id, inc_votes) => {
 	if (isNaN(parseInt(article_id))) {
 		return Promise.reject({
 			status: 400,
@@ -93,31 +100,37 @@ exports.patchArticleById = (article_id, inc_votes) => {
 		return Promise.reject({ status: 400, msg: 'inc_votes must be an integar' });
 	}
 
-	return db
-		.query(
-			`UPDATE articles SET votes = votes + ${inc_votes} WHERE article_id = ${article_id} RETURNING *;`
-		)
-		.then((result) => {
-			if (!result.rows.length) {
-				return Promise.reject({ msg: 'Article not found', status: 404 });
-			}
-			return result.rows[0];
-		});
+	const query = {
+		text: `UPDATE articles SET votes = votes + $1 WHERE article_id = $1 RETURNING *;`,
+		values: [article_id],
+	};
+
+	const result = await db.query(query);
+
+	if (!result.rows.length) {
+		return Promise.reject({ msg: 'Article not found', status: 404 });
+	}
+
+	return result.rows[0];
 };
 
-exports.selectCommentsByArticleId = (article_id) => {
-	return db
-		.query(`SELECT * FROM comments WHERE comments.article_id = ${article_id}`)
-		.then((result) => {
-			if (!result.rows.length) {
-				return Promise.reject({ msg: 'Comments not found', status: 404 });
-			}
-			return result.rows;
-		});
+exports.selectCommentsByArticleId = async (article_id) => {
+	const query = {
+		text: `SELECT * FROM comments WHERE comments.article_id = $1;`,
+		values: [article_id],
+	};
+
+	const result = await db.query(query);
+
+	if (!result.rows.length) {
+		return Promise.reject({ msg: 'Comments not found', status: 404 });
+	}
+	return result.rows;
 };
 
-exports.postComment = (article_id, reqBody) => {
+exports.postComment = async (article_id, reqBody) => {
 	const { username, body } = reqBody;
+
 	if (isNaN(parseInt(article_id))) {
 		return Promise.reject({
 			status: 400,
@@ -133,17 +146,29 @@ exports.postComment = (article_id, reqBody) => {
 		return Promise.reject({ status: 400, msg: 'Required fields missing' });
 	}
 
-	return db
-		.query(
-			`INSERT INTO comments (article_id, author, body) VALUES ($1, $2, $3) RETURNING *`,
-			[article_id, username, body]
-		)
-		.then((result) => {
-			if (!result.rows.length) {
-				return Promise.reject({ msg: 'Article not found', status: 404 });
-			}
-			return result.rows[0];
+	const validUsernames = await (
+		await User.selectUsers()
+	).map((e) => e.username);
+
+	if (!validUsernames.includes(username)) {
+		return Promise.reject({
+			status: 404,
+			msg: 'Author not found',
 		});
+	}
+
+	const query = {
+		text: 'INSERT INTO comments (article_id, author, body) VALUES ($1, $2, $3) RETURNING *;',
+		values: [article_id, username, body],
+	};
+
+	const result = await db.query(query);
+
+	if (!result.rows.length) {
+		return Promise.reject({ msg: 'Article not found', status: 404 });
+	}
+
+	return result.rows[0];
 };
 
 exports.postArticle = async (author, body, title, topic) => {

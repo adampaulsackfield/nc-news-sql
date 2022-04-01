@@ -229,6 +229,7 @@ describe('ARTICLES', () => {
 				body: 'What a great article',
 				username: 'butter_bridge',
 			};
+
 			return request(app)
 				.post(`${ENDPOINT}/22321312/comments`)
 				.send(comment)
@@ -245,6 +246,21 @@ describe('ARTICLES', () => {
 				.expect(400)
 				.then((res) => {
 					expect(res.body.message).toBe('No body provided');
+				});
+		});
+
+		it('should return a 404 status when the username does not exist', () => {
+			const comment = {
+				body: 'What a great article',
+				username: 'not-real',
+			};
+
+			return request(app)
+				.post(`${ENDPOINT}/2/comments`)
+				.send(comment)
+				.expect(404)
+				.then((res) => {
+					expect(res.body.message).toEqual('Author not found');
 				});
 		});
 	});
