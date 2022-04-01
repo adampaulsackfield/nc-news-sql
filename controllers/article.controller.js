@@ -69,9 +69,6 @@ exports.addComment = async (req, res, next) => {
 		const comment = await postComment(article_id, reqBody);
 		res.status(201).send({ comment });
 	} catch (err) {
-		if (err.code === '23503') {
-			return next({ status: 404, msg: 'Article not found' });
-		}
 		next(err);
 	}
 };

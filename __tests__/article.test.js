@@ -233,9 +233,9 @@ describe('ARTICLES', () => {
 			return request(app)
 				.post(`${ENDPOINT}/22321312/comments`)
 				.send(comment)
-				.expect(404)
+				.expect(400)
 				.then((res) => {
-					expect(res.body.message).toBe('Article not found');
+					expect(res.body.message).toBe('bad request');
 				});
 		});
 

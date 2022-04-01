@@ -12,6 +12,15 @@ app.all('*', (req, res) => {
 });
 
 app.use((err, req, res, next) => {
+	const badReqCodes = ['23503'];
+	if (badReqCodes.includes(err.code)) {
+		res.status(400).send({ message: 'bad request' });
+	} else {
+		next(err);
+	}
+});
+
+app.use((err, req, res, next) => {
 	if (err.status && err.msg) {
 		res.status(err.status).send({ message: err.msg });
 	} else {
