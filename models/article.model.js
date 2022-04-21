@@ -105,8 +105,8 @@ exports.patchArticleById = async (article_id, inc_votes) => {
 	}
 
 	const query = {
-		text: `UPDATE articles SET votes = votes + $1 WHERE article_id = $1 RETURNING *;`,
-		values: [article_id],
+		text: `UPDATE articles SET votes = votes + $1 WHERE article_id = $2 RETURNING *;`,
+		values: [inc_votes, article_id],
 	};
 
 	const result = await db.query(query);
