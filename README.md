@@ -1,6 +1,8 @@
 # Northcoders News API
 
-## View the app [here](https://obscure-lowlands-69895.herokuapp.com/api)
+## View the back-end app [here](https://obscure-lowlands-69895.herokuapp.com/api)
+
+## View the front-end app [here](https://neon-froyo-ab23ec.netlify.app/)
 
 --
 
