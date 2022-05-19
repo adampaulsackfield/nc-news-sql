@@ -58,6 +58,4 @@ This is a RESTful API for articles, comments and users. It includes multiple end
 
 - `prepare` - sets up husky, used for testing prior to commits
 
-- `seed:prod` - used for seeding the production database
-
 - `start` - uses node to start the application
